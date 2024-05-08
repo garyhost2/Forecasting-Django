@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COVID-19 Deaths Plot</title>
+    <!-- Include Plotly CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>COVID-19 Deaths Plot</h1>
+    <form id="countryForm">
+        <label for="country">Enter country:</label>
+        <input type="text" id="country" name="country">
+        <button type="submit">Plot</button>
+    </form>
+    <div id="plot"></div>
+
+    <script>
+        document.getElementById('countryForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var country = document.getElementById('country').value;
+            if (country.trim() !== '') {
+                fetch('/plot/?country=' + country)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Process data and create plot using Plotly.js
+                        var trace = {
+                            x: data.dates,
+                            y: data.deaths,
+                            mode: 'lines+markers',
+                            type: 'scatter'
+                        };
+                        var layout = {
+                            title: 'COVID-19 Deaths in ' + country,
+                            xaxis: {title: 'Date'},
+                            yaxis: {title: 'Number of Deaths'}
+                        };
+                        // Ensure that Plotly is properly initialized before calling newPlot
+                        Plotly.newPlot('plot', [trace], layout);
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    </script>
+</body>
+</html>
